@@ -52,7 +52,7 @@ describe('Suitelet GET Test', () => {
         Suitelet.onRequest(context);
 
         expect(search.lookupFields).toHaveBeenCalledWith(lookupOptions);
-        expect(serverWidget.createForm).toBeCalled();
+        expect(serverWidget.createForm).toHaveBeenCalled();
         expect(Form.addField).toHaveBeenCalledWith({
             id: 'custpage_hello',
             label: 'Hello Text',
