@@ -45,3 +45,4 @@ project.json
 #tmp
 test-reports
 deploy
+junit.xml
