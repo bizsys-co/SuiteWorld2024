@@ -38,9 +38,13 @@ jobs:
       - node/install-packages
       - run:
           name: 'Run Suitelet Tests'
-          command: npm run test
-      - store_artifacts:
-          path: test-reports
+          command: npm run jUnittest
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+            JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
+      - store_test_results:
+          path: ./reports/
+
   netsuite-deploy:
     docker:
       - image: cimg/openjdk:17.0.7-node
