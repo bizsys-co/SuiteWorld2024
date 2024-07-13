@@ -38,7 +38,7 @@ jobs:
       - node/install-packages
       - run:
           name: 'Run Suitelet Tests'
-          command: npm run jUnittest
+          command: npm run test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
             JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"

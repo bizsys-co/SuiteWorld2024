@@ -2,8 +2,7 @@
   "name": "suitecloud-project",
   "version": "1.0.0",
   "scripts": {
-    "test": "jest",
-    "jUnittest": "jest --ci --reporters=default --reporters=jest-junit"
+    "test": "jest --ci --reporters=default --reporters=jest-junit"
   },
   "devDependencies": {
     "@oracle/suitecloud-unit-testing": "^1.5.0",
