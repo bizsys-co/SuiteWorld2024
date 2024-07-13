@@ -1,0 +1,64 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+orbs: 
+  node: circleci/node@5.0.2
+  jira: circleci/jira@2.1.0
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  netsuite:
+    jobs:
+      - netsuite-tests
+      - netsuite-deploy:
+          requires:
+            - netsuite-tests
+          filters:
+            branches:
+              only: main
+          post-steps:
+            - jira/notify:
+                environment: production
+                environment_type: production
+                job_type: deployment
+                pipeline_id: << pipeline.id >>
+                pipeline_number: << pipeline.number >>
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  netsuite-tests:
+    docker:
+      - image: cimg/base:stable
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - checkout
+      - node/install:
+          node-version: "18.16.0"
+      - node/install-packages
+      - run:
+          name: 'Run Suitelet Tests'
+          command: npm run test
+      - store_artifacts:
+          path: test-reports
+  netsuite-deploy:
+    docker:
+      - image: cimg/openjdk:17.0.7-node
+    steps:
+      - checkout
+      - node/install:
+          node-version: "18.16.0"
+      - node/install-packages
+      - run:
+          name: 'Install SuiteCloud'
+          command: npm install -g --acceptSuiteCloudSDKLicense @oracle/suitecloud-cli
+      - run:
+          name: 'Setup NetSuite Account'
+          command: suitecloud account:savetoken --account $NS_ACCOUNTID --authid autoDeploy --tokenid $NS_TOKENID --tokensecret $NS_TOKENSECRET
+      - run:
+          name: 'Deploy NetSuite'
+          command: suitecloud project:deploy > deploy
+      - store_artifacts:
+          path: deploy
+      - store_artifacts:
+          path: test-reports
