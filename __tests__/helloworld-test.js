@@ -114,3 +114,37 @@ describe('Suitelet POST Test', () => {
         expect(Form.getField({id: 'custpage_success'}).defaultValue).toBe(`Customer Id ${customerLookup.internalid[0].value} was saved successfully.`);
     });
 });
+
+describe('Unexpected Error Test', () => {
+    it('NetSuite Throws Unexpected Error', () => {
+        let context = {
+            request: {
+                method: 'GET',
+                parameters: {
+                    customerid: 6
+                }
+            },
+            response: {
+                writePage() {return Form;}
+            }
+        };
+
+        const unexpectedError = {
+            "name": "UNEXPECTED_ERROR",
+            "message": "An unexpected SuiteScript error has occurred"
+        };
+
+        search.lookupFields.mockImplementation(() => {
+            throw unexpectedError;
+        });
+
+        Suitelet.onRequest(context);
+
+        expect(Form.addField).toHaveBeenCalledWith({
+            id: 'custpage_error',
+            label: 'Form Error',
+            type: serverWidget.FieldType.TEXTAREA
+        });
+        expect(Form.getField({id: 'custpage_error'}).defaultValue).toBe(`Error Title: ${unexpectedError.name}\nError Message: ${unexpectedError.message}`);
+    });
+});
